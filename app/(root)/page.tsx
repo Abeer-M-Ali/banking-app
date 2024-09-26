@@ -7,17 +7,32 @@ import { getLoggedInUser } from '@/lib/actions/user.actions';
 
 const Home = async ({ searchParams: { id, page } }: SearchParamProps) => {
   const currentPage = Number(page as string) || 1;
+  
+  // Fetch logged-in user data
   const loggedIn = await getLoggedInUser();
+
+  // Handle if no user is logged in
+  if (!loggedIn) {
+    console.error("No user is logged in.");
+    return <div>Please log in to view your account details.</div>;
+  }
+
+  // Fetch accounts data
   const accounts = await getAccounts({ 
     userId: loggedIn.$id 
-  })
+  });
 
-  if(!accounts) return;
-  
+  if (!accounts) {
+    console.error("No accounts found.");
+    return <div>No accounts available to display.</div>;
+  }
+
+  // Extract data from accounts
   const accountsData = accounts?.data;
   const appwriteItemId = (id as string) || accountsData[0]?.appwriteItemId;
 
-  const account = await getAccount({ appwriteItemId })
+  // Fetch specific account data
+  const account = await getAccount({ appwriteItemId });
 
   return (
     <section className="home">
@@ -54,4 +69,4 @@ const Home = async ({ searchParams: { id, page } }: SearchParamProps) => {
   )
 }
 
-export default Home
+export default Home;
